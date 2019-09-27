@@ -1,0 +1,47 @@
+---
+title: "Eastern Hellbender life stage population dynamics"
+author: "Ben Camber and Mariah Boudreau"
+date: "9/20/2019"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+---
+
+
+### 1 Which species did you choose and why?
+# We chose the Eastern Hellbender as they're a threatened species in a slow decline since the 1980s, but no one is quite sure why. 
+
+### 2 What questions do we want to answer about the Eastern Hellbender and why?
+# If we know the sensitivity and elasticity during the different life stages, we can make better conclusions on how to best intervene and improve their populations. 
+ 
+# https://www.sciencedirect.com/science/article/pii/S161713811300054X
+
+```{r}
+load(file="comadre.RData")
+
+
+comadre$mat[203][[1]]
+EHmat = comadre$mat[203][[1]]$matA
+EHmat
+eigen(EHmat)
+
+sensitivity <- function(A) {
+  d <- eigen(A)$values   # eigen values
+  w <- eigen(A)$vectors  # right eigen vectors
+  v <- Conj(solve(w))    # complex conjugate of left eigen vectors
+  # output of eigenvalues is decreasingly sorted.
+  v[1,] %*% t(w[,1])
+}
+sensitivity(EHmat)
+
+L1 <- Re(eigen(EHmat)$values[1])
+elas <- (EHmat/L1) * sensitivity(EHmat)
+round(elas, 3)
+
+```
+### 3. Calculate eigenvalue, stable age distribution, elasticity, and sensitivity. What does this tell you about the population?
+# Dominant eigenvalue is equal to 1.275. The juvenile to adult transition is where the model is most sensitive (sensitivity = 5.65), but the greatest elasticity values were for subpopulations surviving until the next time point as juveniles (0.212) and as adults (0.283). The stable age distritubtion is 78.4% eggs/larvae, 13.6% juveniles, and 0.8% adults. 
+
+### 4. Using the calculations in part 3, or additional calculations, address the question you proposed in part 2.
+# The best way to manage Eastern Hellbender populations seems to be ensuring that juveniles survive to adulthood and that adults persist for a long time. Fecundity and egg survival parameters are insensitive and inelastic, which is consistent with what we know about organisms with an "r selected" reproduction strategy. Interestingly, the model was most sensitive at the transition from egg/larva to adult, and while that can't happen in nature, we could (and do) facilitate this by catching wild EH larvae and allowing them to mature in captivity, then releasing adults into the wild to breed.
